@@ -1,0 +1,456 @@
+# Ji Time Phrase Parser — Test Cases
+# ====================================
+# NOTE: The parser only finds time phrases; deciding whether a sentence
+# is a real commitment happens in a later stage (Phase 1b / Phase 3 ML).
+#
+# Format: id|input|reference|expected|comment
+#
+# - reference : ISO-8601 local datetime used as "now" for resolving relative phrases
+# - expected  : ISO-8601 local datetime the parser should resolve to,
+#               NONE = no match (or past-tense / irrelevant),
+#               NEEDS_TIME = time phrase recognized but lacks a valid future time slot
+#
+# Rules:
+#   - "today" / "aaj" with no time: use the next default slot (09:00, 14:00, 18:00, 21:00)
+#     still in the future; if none remain today, return NEEDS_TIME.
+#   - Bare weekday that is today: means today if the time is still ahead, otherwise next week.
+#   - "next <weekday>": always means next week (strictly after today).
+#   - Bare hours disambiguation (no am/pm):
+#       Hours 1-6  → assume PM
+#       Hours 7-11 → assume AM if on a future day; if same day, use next future occurrence
+#       Hour 12    → noon (12:00 PM)
+#   - With explicit am/pm: use it; if already past today, advance to next day.
+#   - Default time slots:
+#       morning (subah/सुबह)       = 09:00
+#       afternoon (dopahar/दोपहर)  = 14:00
+#       evening (shaam/शाम)        = 18:00
+#       night (raat/रात)           = 21:00
+#   - "kal/कल" in reminder context defaults to tomorrow. In past-tense phrases ("kal kiya tha"), it refers to yesterday → NONE.
+#
+# Primary reference: 2024-03-15T10:00 (Friday, 10:00 AM)
+# ====================================
+
+# ── ENGLISH: at/by + clock time ──────────────────────────────────────────
+1|call you at 5|2024-03-15T10:00|2024-03-15T17:00|Bare hour 5 → PM
+2|at 5pm|2024-03-15T10:00|2024-03-15T17:00|Explicit PM
+3|at 5 pm|2024-03-15T10:00|2024-03-15T17:00|Explicit PM with space
+4|at 5am|2024-03-15T10:00|2024-03-16T05:00|5 AM already past → tomorrow
+5|at 5:30|2024-03-15T10:00|2024-03-15T17:30|Half-hour, bare → PM
+6|at 5:30pm|2024-03-15T10:00|2024-03-15T17:30|Half-hour explicit PM
+7|at 5:30am|2024-03-15T10:00|2024-03-16T05:30|Half-hour AM → tomorrow
+8|by 6|2024-03-15T10:00|2024-03-15T18:00|"by" treated same as "at"
+9|by 3pm|2024-03-15T10:00|2024-03-15T15:00|"by" with explicit PM
+10|at 11|2024-03-15T10:00|2024-03-15T11:00|11 AM is future at 10 AM
+11|at 12|2024-03-15T10:00|2024-03-15T12:00|Noon
+12|at 12pm|2024-03-15T10:00|2024-03-15T12:00|Noon explicit
+13|at 12am|2024-03-15T10:00|2024-03-16T00:00|Midnight → next day
+14|at 1|2024-03-15T10:00|2024-03-15T13:00|Bare 1 → PM
+15|at 9|2024-03-15T10:00|2024-03-15T21:00|9 AM past → 9 PM today
+16|at 2:15pm|2024-03-15T10:00|2024-03-15T14:15|Quarter past 2 PM
+
+# ── ENGLISH: in + duration ───────────────────────────────────────────────
+17|in 2 hours|2024-03-15T10:00|2024-03-15T12:00|+2 hours
+18|in 30 minutes|2024-03-15T10:00|2024-03-15T10:30|+30 min
+19|in an hour|2024-03-15T10:00|2024-03-15T11:00|+1 hour (word form)
+20|in 1 hour|2024-03-15T10:00|2024-03-15T11:00|+1 hour (numeric)
+21|in 15 minutes|2024-03-15T10:00|2024-03-15T10:15|+15 min
+22|in half an hour|2024-03-15T10:00|2024-03-15T10:30|+30 min (word form)
+23|in 3 hours|2024-03-15T10:00|2024-03-15T13:00|+3 hours
+24|in 45 minutes|2024-03-15T10:00|2024-03-15T10:45|+45 min
+25|in 10 minutes|2024-03-15T10:00|2024-03-15T10:10|+10 min
+26|in 4 hours|2024-03-15T16:00|2024-03-15T20:00|+4 hours from 4 PM
+27|in 90 minutes|2024-03-15T10:00|2024-03-15T11:30|+90 min = 1h30m
+28|in 5 hours|2024-03-15T22:00|2024-03-16T03:00|+5 hours crosses midnight
+
+# ── ENGLISH: today / tonight ─────────────────────────────────────────────
+29|today|2024-03-15T10:00|2024-03-15T14:00|Today at 10am: 9am past, next future slot is 14:00
+30|today morning|2024-03-15T10:00|NEEDS_TIME|Morning (09:00) has passed today → NEEDS_TIME
+31|today afternoon|2024-03-15T10:00|2024-03-15T14:00|Today afternoon = 14:00
+32|today evening|2024-03-15T10:00|2024-03-15T18:00|Today evening = 18:00
+33|tonight|2024-03-15T10:00|2024-03-15T21:00|Tonight = 21:00
+34|tonight at 8|2024-03-15T10:00|2024-03-15T20:00|Tonight with specific hour
+35|tonight at 11|2024-03-15T10:00|2024-03-15T23:00|Tonight late
+36|this evening|2024-03-15T10:00|2024-03-15T18:00|This evening = today evening
+37|this afternoon|2024-03-15T10:00|2024-03-15T14:00|This afternoon
+
+# ── ENGLISH: tomorrow ────────────────────────────────────────────────────
+38|tomorrow|2024-03-15T10:00|2024-03-16T09:00|Tomorrow defaults to morning
+39|tomorrow morning|2024-03-15T10:00|2024-03-16T09:00|Tomorrow morning
+40|tomorrow afternoon|2024-03-15T10:00|2024-03-16T14:00|Tomorrow afternoon
+41|tomorrow evening|2024-03-15T10:00|2024-03-16T18:00|Tomorrow evening
+42|tomorrow night|2024-03-15T10:00|2024-03-16T21:00|Tomorrow night
+43|tomorrow at 5|2024-03-15T10:00|2024-03-16T17:00|Tomorrow + bare 5 → PM
+44|tomorrow at 5pm|2024-03-15T10:00|2024-03-16T17:00|Tomorrow + explicit PM
+45|tomorrow at 5am|2024-03-15T10:00|2024-03-16T05:00|Tomorrow + explicit AM
+46|tomorrow at 10:30|2024-03-15T10:00|2024-03-16T10:30|Tomorrow + bare 10 → AM on future day
+47|tomorrow at noon|2024-03-15T10:00|2024-03-16T12:00|Noon keyword
+
+# ── ENGLISH: day after tomorrow ──────────────────────────────────────────
+48|day after tomorrow|2024-03-15T10:00|2024-03-17T09:00|DAT morning default
+49|day after tomorrow morning|2024-03-15T10:00|2024-03-17T09:00|DAT explicit morning
+50|day after tomorrow at 5|2024-03-15T10:00|2024-03-17T17:00|DAT + bare 5 → PM
+51|day after tomorrow evening|2024-03-15T10:00|2024-03-17T18:00|DAT evening
+
+# ── ENGLISH: weekday ─────────────────────────────────────────────────────
+# Reference is Friday 2024-03-15; "next X" = first X strictly after today
+52|next Monday|2024-03-15T10:00|2024-03-18T09:00|Next Monday = Mar 18
+53|next Tuesday|2024-03-15T10:00|2024-03-19T09:00|Next Tuesday = Mar 19
+54|next Wednesday|2024-03-15T10:00|2024-03-20T09:00|Next Wednesday = Mar 20
+55|next Thursday|2024-03-15T10:00|2024-03-21T09:00|Next Thursday = Mar 21
+56|next Friday|2024-03-15T10:00|2024-03-22T09:00|Next Friday (always next week) = Mar 22
+57|next Saturday|2024-03-15T10:00|2024-03-16T09:00|Next Saturday = Mar 16 (tomorrow)
+58|next Sunday|2024-03-15T10:00|2024-03-17T09:00|Next Sunday = Mar 17
+59|on Monday|2024-03-15T10:00|2024-03-18T09:00|On Monday = next Monday
+60|on Wednesday|2024-03-15T10:00|2024-03-20T09:00|On Wednesday
+61|this Saturday|2024-03-15T10:00|2024-03-16T09:00|This Saturday = Mar 16
+
+# ── ENGLISH: weekday + time ──────────────────────────────────────────────
+62|Monday morning|2024-03-15T10:00|2024-03-18T09:00|Monday morning
+63|Monday at 5|2024-03-15T10:00|2024-03-18T17:00|Monday at 5 PM
+64|next Monday at 3pm|2024-03-15T10:00|2024-03-18T15:00|Next Monday explicit PM
+65|Tuesday evening|2024-03-15T10:00|2024-03-19T18:00|Tuesday evening
+66|Wednesday night|2024-03-15T10:00|2024-03-20T21:00|Wednesday night
+67|Friday at 2|2024-03-15T10:00|2024-03-15T14:00|Bare Friday that is today: 2pm is ahead → today
+68|Saturday afternoon|2024-03-15T10:00|2024-03-16T14:00|Saturday afternoon
+69|Sunday at 10|2024-03-15T10:00|2024-03-17T10:00|Sunday at 10 AM (bare 10 → AM on future day)
+
+# ── ENGLISH: embedded in sentences ───────────────────────────────────────
+70|I'll send it by 5|2024-03-15T10:00|2024-03-15T17:00|Time in commitment sentence
+71|let me call you at 3pm|2024-03-15T10:00|2024-03-15T15:00|Time at end
+72|can you do it by tomorrow evening|2024-03-15T10:00|2024-03-16T18:00|Tomorrow evening in sentence
+73|I need this done in 2 hours|2024-03-15T10:00|2024-03-15T12:00|Relative in sentence
+74|let's meet next Monday at 10|2024-03-15T10:00|2024-03-18T10:00|Weekday + time in sentence
+75|please send the report by Friday at 3|2024-03-15T10:00|2024-03-15T15:00|Bare Friday that is today: 3pm is ahead → today
+
+# ── HINDI (Devanagari): days & periods ───────────────────────────────────
+76|कल|2024-03-15T10:00|2024-03-16T09:00|kal = tomorrow
+77|कल सुबह|2024-03-15T10:00|2024-03-16T09:00|kal subah = tomorrow morning
+78|कल दोपहर|2024-03-15T10:00|2024-03-16T14:00|kal dopahar = tomorrow afternoon
+79|कल शाम|2024-03-15T10:00|2024-03-16T18:00|kal shaam = tomorrow evening
+80|कल रात|2024-03-15T10:00|2024-03-16T21:00|kal raat = tomorrow night
+81|परसों|2024-03-15T10:00|2024-03-17T09:00|parso = day after tomorrow
+82|परसों सुबह|2024-03-15T10:00|2024-03-17T09:00|parso subah = DAT morning
+83|परसों शाम|2024-03-15T10:00|2024-03-17T18:00|parso shaam = DAT evening
+84|परसों रात|2024-03-15T10:00|2024-03-17T21:00|parso raat = DAT night
+85|आज|2024-03-15T10:00|2024-03-15T14:00|aaj at 10am: 9am past, next future slot is 14:00
+86|आज शाम|2024-03-15T10:00|2024-03-15T18:00|aaj shaam = today evening
+87|आज रात|2024-03-15T10:00|2024-03-15T21:00|aaj raat = tonight
+88|आज दोपहर|2024-03-15T10:00|2024-03-15T14:00|aaj dopahar = today afternoon
+
+# ── HINDI (Devanagari): day + clock ──────────────────────────────────────
+89|कल 5 बजे|2024-03-15T10:00|2024-03-16T17:00|Tomorrow at 5 PM
+90|कल शाम 5 बजे|2024-03-15T10:00|2024-03-16T17:00|Tomorrow evening at 5
+91|कल सुबह 7 बजे|2024-03-15T10:00|2024-03-16T07:00|Tomorrow morning at 7
+92|कल रात 9 बजे|2024-03-15T10:00|2024-03-16T21:00|Tomorrow night at 9
+93|कल 10 बजे|2024-03-15T10:00|2024-03-16T10:00|Tomorrow at 10 (AM, bare 10 on future day)
+94|परसों 3 बजे|2024-03-15T10:00|2024-03-17T15:00|DAT at 3 PM
+
+# ── HINDI (Devanagari): relative duration ────────────────────────────────
+95|2 घंटे में|2024-03-15T10:00|2024-03-15T12:00|2 ghante mein = in 2 hours
+96|5 मिनट में|2024-03-15T10:00|2024-03-15T10:05|5 minute mein = in 5 minutes
+97|एक घंटे में|2024-03-15T10:00|2024-03-15T11:00|ek ghante mein = in 1 hour
+98|आधे घंटे में|2024-03-15T10:00|2024-03-15T10:30|aadhe ghante mein = in half hour
+99|10 मिनट में|2024-03-15T10:00|2024-03-15T10:10|10 minute mein = in 10 minutes
+100|3 घंटे में|2024-03-15T10:00|2024-03-15T13:00|3 ghante mein = in 3 hours
+101|15 मिनट में|2024-03-15T10:00|2024-03-15T10:15|15 minute mein = in 15 minutes
+102|1 घंटे में|2024-03-15T10:00|2024-03-15T11:00|1 ghante mein = in 1 hour
+
+# ── HINDI (Devanagari): weekday ──────────────────────────────────────────
+103|सोमवार को|2024-03-15T10:00|2024-03-18T09:00|somvaar ko = on Monday
+104|मंगलवार सुबह|2024-03-15T10:00|2024-03-19T09:00|mangalvaar subah = Tuesday morning
+105|बुधवार शाम|2024-03-15T10:00|2024-03-20T18:00|budhvaar shaam = Wednesday evening
+106|गुरुवार को|2024-03-15T10:00|2024-03-21T09:00|guruvaar ko = on Thursday
+107|अगले सोमवार|2024-03-15T10:00|2024-03-18T09:00|agle somvaar = next Monday
+108|शनिवार को|2024-03-15T10:00|2024-03-16T09:00|shanivaar ko = on Saturday
+
+# ── HINGLISH (romanized): days & periods ─────────────────────────────────
+109|kal|2024-03-15T10:00|2024-03-16T09:00|kal = tomorrow
+110|kal subah|2024-03-15T10:00|2024-03-16T09:00|kal subah = tomorrow morning
+111|kal dopahar|2024-03-15T10:00|2024-03-16T14:00|kal dopahar = tomorrow afternoon
+112|kal shaam|2024-03-15T10:00|2024-03-16T18:00|kal shaam = tomorrow evening
+113|kal raat|2024-03-15T10:00|2024-03-16T21:00|kal raat = tomorrow night
+114|parso|2024-03-15T10:00|2024-03-17T09:00|parso = day after tomorrow
+115|parso subah|2024-03-15T10:00|2024-03-17T09:00|parso subah = DAT morning
+116|parso shaam|2024-03-15T10:00|2024-03-17T18:00|parso shaam = DAT evening
+117|aaj|2024-03-15T10:00|2024-03-15T14:00|aaj at 10am: 9am past, next future slot is 14:00
+118|aaj shaam|2024-03-15T10:00|2024-03-15T18:00|aaj shaam = today evening
+119|aaj raat|2024-03-15T10:00|2024-03-15T21:00|aaj raat = tonight
+
+# ── HINGLISH (romanized): day + clock ────────────────────────────────────
+120|kal 5 baje|2024-03-15T10:00|2024-03-16T17:00|Tomorrow at 5 PM
+121|kal shaam 5 baje|2024-03-15T10:00|2024-03-16T17:00|Tomorrow evening 5
+122|kal subah 7 baje|2024-03-15T10:00|2024-03-16T07:00|Tomorrow morning 7
+123|kal raat 9 baje|2024-03-15T10:00|2024-03-16T21:00|Tomorrow night 9
+124|parso 3 baje|2024-03-15T10:00|2024-03-17T15:00|DAT at 3 PM
+125|aaj 4 baje|2024-03-15T10:00|2024-03-15T16:00|Today at 4 PM
+126|kal 11 baje|2024-03-15T10:00|2024-03-16T11:00|Tomorrow at 11 AM (bare 11 on future day → AM)
+
+# ── HINGLISH (romanized): relative duration ──────────────────────────────
+127|2 ghante mein|2024-03-15T10:00|2024-03-15T12:00|in 2 hours
+128|5 minute mein|2024-03-15T10:00|2024-03-15T10:05|in 5 minutes
+129|ek ghante mein|2024-03-15T10:00|2024-03-15T11:00|in 1 hour
+130|aadhe ghante mein|2024-03-15T10:00|2024-03-15T10:30|in half hour
+131|10 minute mein|2024-03-15T10:00|2024-03-15T10:10|in 10 minutes
+132|3 ghante mein|2024-03-15T10:00|2024-03-15T13:00|in 3 hours
+133|15 minute mein|2024-03-15T10:00|2024-03-15T10:15|in 15 minutes
+134|dedh ghante mein|2024-03-15T10:00|2024-03-15T11:30|dedh = 1.5 hours
+
+# ── HINGLISH (romanized): weekday ────────────────────────────────────────
+135|somvaar ko|2024-03-15T10:00|2024-03-18T09:00|on Monday
+136|mangalvaar subah|2024-03-15T10:00|2024-03-19T09:00|Tuesday morning
+137|agle somvaar|2024-03-15T10:00|2024-03-18T09:00|next Monday
+138|shukravaar shaam|2024-03-15T10:00|2024-03-15T18:00|Bare Friday that is today: 6pm is ahead → today
+
+# ── HINGLISH (romanized): embedded in sentences ──────────────────────────
+139|kal shaam 5 baje bhejta hoon|2024-03-15T10:00|2024-03-16T17:00|Tomorrow evening 5 in sentence
+140|main kal subah call karta hoon|2024-03-15T10:00|2024-03-16T09:00|Tomorrow morning in sentence
+141|parso tak bhej dena|2024-03-15T10:00|2024-03-17T09:00|DAT in sentence
+142|2 ghante mein kar deta hoon|2024-03-15T10:00|2024-03-15T12:00|In 2 hours in sentence
+143|aaj raat 9 baje milte hain|2024-03-15T10:00|2024-03-15T21:00|Tonight 9 in sentence
+144|somvaar ko bhej dunga|2024-03-15T10:00|2024-03-18T09:00|Monday in sentence
+
+# ── NEGATIVE: no time phrase (expect NONE) ───────────────────────────────
+145|hello how are you|2024-03-15T10:00|NONE|No time phrase
+146|I like pizza|2024-03-15T10:00|NONE|No time phrase
+147|great job on the presentation|2024-03-15T10:00|NONE|No time phrase
+148|please send the file|2024-03-15T10:00|NONE|No specific time
+149|the number is 55555|2024-03-15T10:00|NONE|Number but not a time
+150|room 205|2024-03-15T10:00|NONE|Number in non-time context
+151|I have 5 apples|2024-03-15T10:00|NONE|Quantity, not time
+152|page 5 of the book|2024-03-15T10:00|NONE|Page number, not time
+153|version 2.0|2024-03-15T10:00|NONE|Version, not time
+154|call me later|2024-03-15T10:00|NONE|Vague — no specific time
+155|see you soon|2024-03-15T10:00|NONE|Vague — no specific time
+156|thanks for everything|2024-03-15T10:00|NONE|No time phrase
+157|kya haal hai|2024-03-15T10:00|NONE|Hinglish greeting, no time
+158|bahut accha kaam kiya|2024-03-15T10:00|NONE|Hindi praise, no time
+159|theek hai bhai|2024-03-15T10:00|NONE|Hinglish acknowledgment, no time
+
+# ── EDGE CASES ───────────────────────────────────────────────────────────
+160|at 5|2024-03-15T16:00|2024-03-15T17:00|Bare 5 at 4 PM — 5 PM still future
+161|at 5|2024-03-15T22:00|2024-03-16T17:00|Bare 5 at 10 PM — 5 PM past → tomorrow
+162|at 3|2024-03-15T16:00|2024-03-16T15:00|Bare 3 at 4 PM — 3 PM past → tomorrow
+163|tomorrow|2024-03-15T22:00|2024-03-16T09:00|Tomorrow from late night
+164|in 5 hours|2024-03-15T22:00|2024-03-16T03:00|Relative crossing midnight
+165|kal|2024-03-15T22:00|2024-03-16T09:00|Kal from late night
+166|at 12:30pm|2024-03-15T10:00|2024-03-15T12:30|12:30 PM specific
+167|at 12:30am|2024-03-15T10:00|2024-03-16T00:30|12:30 AM → next day
+
+# ── PAST-TENSE NEGATIVES (English, Hindi, Hinglish) ───────────────────────
+168|2 hours ago|2024-03-15T10:00|NONE|Past duration in English
+169|30 minutes ago|2024-03-15T10:00|NONE|Past duration in English
+170|an hour ago|2024-03-15T10:00|NONE|Past duration in English
+171|yesterday|2024-03-15T10:00|NONE|Yesterday in English
+172|yesterday at 5|2024-03-15T10:00|NONE|Yesterday with time in English
+173|yesterday evening|2024-03-15T10:00|NONE|Yesterday evening
+174|last night|2024-03-15T10:00|NONE|Past night in English
+175|last night at 9|2024-03-15T10:00|NONE|Past night with hour
+176|last week|2024-03-15T10:00|NONE|Past week in English
+177|last Monday|2024-03-15T10:00|NONE|Past weekday in English
+178|I sent it 2 hours ago|2024-03-15T10:00|NONE|Past event in sentence
+179|already called at 5|2024-03-15T10:00|NONE|Completed past action
+180|kal maine call kiya tha|2024-03-15T10:00|NONE|kal + kiya tha = yesterday (past)
+181|maine kal bhej diya tha|2024-03-15T10:00|NONE|kal + diya tha = yesterday (past)
+182|kal meeting hui thi|2024-03-15T10:00|NONE|kal + hui thi = yesterday (past)
+183|kal gaya tha|2024-03-15T10:00|NONE|kal + gaya tha = yesterday (past)
+184|kal baat hui thi|2024-03-15T10:00|NONE|kal + hui thi = yesterday (past)
+185|parso aaya tha|2024-03-15T10:00|NONE|parso + aaya tha = day before yesterday (past)
+186|2 ghante pehle|2024-03-15T10:00|NONE|pehle = ago in Hinglish
+187|2 ghante pehle kiya tha|2024-03-15T10:00|NONE|Past duration in Hinglish
+188|10 minute pehle bheja|2024-03-15T10:00|NONE|Past duration in Hinglish
+189|कल मैंने कॉल किया था|2024-03-15T10:00|NONE|Hindi past tense: kal + kiya tha
+190|कल भेजा था|2024-03-15T10:00|NONE|Hindi past tense: kal + bheja tha
+191|कल मीटिंग हुई थी|2024-03-15T10:00|NONE|Hindi past tense: kal + hui thi
+192|परसों हुआ था|2024-03-15T10:00|NONE|Hindi past tense: parso + hua tha
+193|2 घंटे पहले|2024-03-15T10:00|NONE|Hindi past duration: pehle
+194|आधे घंटे पहले भेजा था|2024-03-15T10:00|NONE|Hindi past duration with action
+
+# ── BARE "5 BAJE" / "SHAAM 5 BAJE" (no day prefix) ────────────────────────
+195|5 baje|2024-03-15T10:00|2024-03-15T17:00|Bare 5 baje at 10am → 5pm today
+196|shaam 5 baje|2024-03-15T10:00|2024-03-15T17:00|shaam 5 baje at 10am → 5pm today
+197|subah 8 baje|2024-03-15T10:00|2024-03-16T08:00|subah 8 baje at 10am: 8am past → tomorrow 8am
+198|subah 11 baje|2024-03-15T10:00|2024-03-15T11:00|subah 11 baje at 10am: 11am future → today 11am
+199|raat 9 baje|2024-03-15T10:00|2024-03-15T21:00|raat 9 baje at 10am → 9pm today
+200|dopahar 2 baje|2024-03-15T10:00|2024-03-15T14:00|dopahar 2 baje at 10am → 2pm today
+201|4 baje|2024-03-15T10:00|2024-03-15T16:00|Bare 4 baje at 10am → 4pm today
+202|5 बजे|2024-03-15T10:00|2024-03-15T17:00|Devanagari bare 5 baje at 10am → 5pm today
+203|शाम 5 बजे|2024-03-15T10:00|2024-03-15T17:00|Devanagari shaam 5 baje at 10am → 5pm today
+204|सुबह 9 बजे|2024-03-15T10:00|2024-03-16T09:00|subah 9 baje at 10am: 9am past → tomorrow 9am
+205|रात 10 बजे|2024-03-15T10:00|2024-03-15T22:00|Devanagari raat 10 baje at 10am → 10pm today
+206|दोपहर 3 बजे|2024-03-15T10:00|2024-03-15T15:00|Devanagari dopahar 3 baje at 10am → 3pm today
+
+# ── SAADE / SAWA / PAUNE / DEDH / DHAI ───────────────────────────────────
+207|dedh baje|2024-03-15T10:00|2024-03-15T13:30|dedh baje = 1:30 PM today
+208|dhai baje|2024-03-15T10:00|2024-03-15T14:30|dhai baje = 2:30 PM today
+209|saade 4 baje|2024-03-15T10:00|2024-03-15T16:30|saade 4 = 4:30 PM today
+210|saade 5 baje|2024-03-15T10:00|2024-03-15T17:30|saade 5 = 5:30 PM today
+211|sawa 5 baje|2024-03-15T10:00|2024-03-15T17:15|sawa 5 = 5:15 PM today
+212|paune 6 baje|2024-03-15T10:00|2024-03-15T17:45|paune 6 = 5:45 PM today
+213|sawa 11 baje|2024-03-15T10:00|2024-03-15T11:15|sawa 11 = 11:15 AM today
+214|paune 12 baje|2024-03-15T10:00|2024-03-15T11:45|paune 12 = 11:45 AM today
+215|saade 11 baje|2024-03-15T10:00|2024-03-15T11:30|saade 11 = 11:30 AM today
+216|kal dedh baje|2024-03-15T10:00|2024-03-16T13:30|kal dedh baje = tomorrow 1:30 PM
+217|kal dhai baje|2024-03-15T10:00|2024-03-16T14:30|kal dhai baje = tomorrow 2:30 PM
+218|kal saade 5 baje|2024-03-15T10:00|2024-03-16T17:30|kal saade 5 = tomorrow 5:30 PM
+219|kal sawa 6 baje|2024-03-15T10:00|2024-03-16T18:15|kal sawa 6 = tomorrow 6:15 PM
+220|kal paune 5 baje|2024-03-15T10:00|2024-03-16T16:45|kal paune 5 = tomorrow 4:45 PM
+221|डेढ़ बजे|2024-03-15T10:00|2024-03-15T13:30|Devanagari dedh baje = 1:30 PM
+222|ढाई बजे|2024-03-15T10:00|2024-03-15T14:30|Devanagari dhai baje = 2:30 PM
+223|साढ़े 4 बजे|2024-03-15T10:00|2024-03-15T16:30|Devanagari saade 4 baje = 4:30 PM
+224|सवा 3 बजे|2024-03-15T10:00|2024-03-15T15:15|Devanagari sawa 3 baje = 3:15 PM
+225|पौने 5 बजे|2024-03-15T10:00|2024-03-15T16:45|Devanagari paune 5 baje = 4:45 PM
+226|कल डेढ़ बजे|2024-03-15T10:00|2024-03-16T13:30|Devanagari kal dedh baje = tomorrow 1:30 PM
+227|कल ढाई बजे|2024-03-15T10:00|2024-03-16T14:30|Devanagari kal dhai baje = tomorrow 2:30 PM
+228|कल साढ़े 5 बजे|2024-03-15T10:00|2024-03-16T17:30|Devanagari kal saade 5 baje = tomorrow 5:30 PM
+
+# ── ABBREVIATIONS (tmrw, hrs, mins, kl) ──────────────────────────────────
+229|tmrw|2024-03-15T10:00|2024-03-16T09:00|tmrw = tomorrow morning default
+230|tmrw morning|2024-03-15T10:00|2024-03-16T09:00|tmrw morning
+231|tmrw at 5|2024-03-15T10:00|2024-03-16T17:00|tmrw at 5 PM
+232|tmrw at 4pm|2024-03-15T10:00|2024-03-16T16:00|tmrw explicit PM
+233|tmrw evening|2024-03-15T10:00|2024-03-16T18:00|tmrw evening
+234|in 2 hrs|2024-03-15T10:00|2024-03-15T12:00|in 2 hrs abbreviation
+235|in 1 hr|2024-03-15T10:00|2024-03-15T11:00|in 1 hr abbreviation
+236|in 45 mins|2024-03-15T10:00|2024-03-15T10:45|in 45 mins abbreviation
+237|in 15 min|2024-03-15T10:00|2024-03-15T10:15|in 15 min abbreviation
+238|kl 5 baje|2024-03-15T10:00|2024-03-16T17:00|kl abbreviation = kal
+239|kl shaam|2024-03-15T10:00|2024-03-16T18:00|kl shaam = tomorrow evening
+240|kl subah|2024-03-15T10:00|2024-03-16T09:00|kl subah = tomorrow morning
+241|call u tmrw|2024-03-15T10:00|2024-03-16T09:00|tmrw embedded in sentence
+
+# ── ALL WEEKDAYS IN HINDI AND HINGLISH ───────────────────────────────────
+242|somwar ko|2024-03-15T10:00|2024-03-18T09:00|somwar (variant of somvaar) = Monday
+243|mangalwar ko|2024-03-15T10:00|2024-03-19T09:00|mangalwar (variant of mangalvaar) = Tuesday
+244|budhwar ko|2024-03-15T10:00|2024-03-20T09:00|budhwar = Wednesday
+245|guruwar ko|2024-03-15T10:00|2024-03-21T09:00|guruwar = Thursday
+246|veervaar ko|2024-03-15T10:00|2024-03-21T09:00|veervaar = Thursday
+247|shukrawar at 4pm|2024-03-15T10:00|2024-03-15T16:00|shukrawar that is today: 4pm ahead → today 4pm
+248|agle shukrawar|2024-03-15T10:00|2024-03-22T09:00|agle shukrawar = next Friday
+249|shaniwar ko|2024-03-15T10:00|2024-03-16T09:00|shaniwar = Saturday (tomorrow)
+250|raviwar ko|2024-03-15T10:00|2024-03-17T09:00|raviwar = Sunday
+251|aitwar ko|2024-03-15T10:00|2024-03-17T09:00|aitwar = Sunday
+252|itwaar morning|2024-03-15T10:00|2024-03-17T09:00|itwaar = Sunday morning
+253|मंगलवार को|2024-03-15T10:00|2024-03-19T09:00|Devanagari Tuesday
+254|बुधवार को|2024-03-15T10:00|2024-03-20T09:00|Devanagari Wednesday
+255|गुरुवार शाम|2024-03-15T10:00|2024-03-21T18:00|Devanagari Thursday evening
+256|वीरवार दोपहर|2024-03-15T10:00|2024-03-21T14:00|Devanagari Thursday afternoon
+257|शुक्रवार शाम 5 बजे|2024-03-15T10:00|2024-03-15T17:00|Bare Friday that is today: 5pm ahead → today 5pm
+258|अगले शुक्रवार|2024-03-15T10:00|2024-03-22T09:00|Devanagari next Friday = next week
+259|शनिवार सुबह|2024-03-15T10:00|2024-03-16T09:00|Devanagari Saturday morning
+260|रविवार रात 8 बजे|2024-03-15T10:00|2024-03-17T20:00|Devanagari Sunday night 8pm
+261|इतवार को|2024-03-15T10:00|2024-03-17T09:00|Devanagari Sunday
+
+# ── DEVANAGARI DIGITS (०, १, २, ३, ४, ५, ६, ७, ८, ९) ──────────────────────
+262|कल ५ बजे|2024-03-15T10:00|2024-03-16T17:00|Devanagari digit 5
+263|कल शाम ५ बजे|2024-03-15T10:00|2024-03-16T17:00|Devanagari digit 5 with shaam
+264|कल सुबह ७ बजे|2024-03-15T10:00|2024-03-16T07:00|Devanagari digit 7 with subah
+265|कल रात ९ बजे|2024-03-15T10:00|2024-03-16T21:00|Devanagari digit 9 with raat
+266|२ घंटे में|2024-03-15T10:00|2024-03-15T12:00|Devanagari digit 2 in relative duration
+267|१० मिनट में|2024-03-15T10:00|2024-03-15T10:10|Devanagari digits 10 in relative duration
+268|३० मिनट में|2024-03-15T10:00|2024-03-15T10:30|Devanagari digits 30 in relative duration
+269|परसों ३ बजे|2024-03-15T10:00|2024-03-17T15:00|Devanagari digit 3 with parso
+270|आज शाम ६ बजे|2024-03-15T10:00|2024-03-15T18:00|Devanagari digit 6 with aaj shaam
+271|४ बजे|2024-03-15T10:00|2024-03-15T16:00|Devanagari digit 4 bare hour
+
+# ── 24-HOUR TIME ─────────────────────────────────────────────────────────
+272|at 14:00|2024-03-15T10:00|2024-03-15T14:00|24-hour time 14:00 today
+273|at 18:30|2024-03-15T10:00|2024-03-15T18:30|24-hour time 18:30 today
+274|at 20:00|2024-03-15T10:00|2024-03-15T20:00|24-hour time 20:00 today
+275|by 17:00|2024-03-15T10:00|2024-03-15T17:00|24-hour time 17:00 today
+276|at 23:00|2024-03-15T10:00|2024-03-15T23:00|24-hour time 23:00 today
+277|tomorrow at 15:30|2024-03-15T10:00|2024-03-16T15:30|24-hour time on tomorrow
+278|at 09:00|2024-03-15T10:00|2024-03-16T09:00|24-hour 09:00 passed at 10am → tomorrow 09:00
+279|at 08:30|2024-03-15T10:00|2024-03-16T08:30|24-hour 08:30 passed at 10am → tomorrow 08:30
+
+# ── NOON / MIDNIGHT / EOD ────────────────────────────────────────────────
+280|at noon|2024-03-15T10:00|2024-03-15T12:00|at noon today = 12:00 PM
+281|by noon|2024-03-15T10:00|2024-03-15T12:00|by noon today = 12:00 PM
+282|tomorrow noon|2024-03-15T10:00|2024-03-16T12:00|tomorrow noon
+283|at midnight|2024-03-15T10:00|2024-03-16T00:00|at midnight (upcoming midnight)
+284|tomorrow midnight|2024-03-15T10:00|2024-03-17T00:00|tomorrow midnight
+285|by end of day|2024-03-15T10:00|2024-03-15T18:00|end of day default = 18:00
+286|by EOD|2024-03-15T10:00|2024-03-15T18:00|EOD default = 18:00
+287|tomorrow EOD|2024-03-15T10:00|2024-03-16T18:00|tomorrow EOD = tomorrow 18:00
+
+# ── IN 2 DAYS / NEXT WEEK ────────────────────────────────────────────────
+288|in 2 days|2024-03-15T10:00|2024-03-17T10:00|in 2 days from Friday 10am → Sunday 10am
+289|in 1 day|2024-03-15T10:00|2024-03-16T10:00|in 1 day = tomorrow at same time
+290|in 3 days|2024-03-15T10:00|2024-03-18T10:00|in 3 days → Monday 10am
+291|next week|2024-03-15T10:00|2024-03-18T09:00|next week defaults to next Monday 9am
+292|next week Monday|2024-03-15T10:00|2024-03-18T09:00|next week Monday = Mar 18 9am
+
+# ── DATES (e.g. 15th March, March 15) ────────────────────────────────────
+293|on 16th March|2024-03-15T10:00|2024-03-16T09:00|Explicit date with suffix: 16th March
+294|on March 16|2024-03-15T10:00|2024-03-16T09:00|Month first: March 16
+295|on 20th March at 5pm|2024-03-15T10:00|2024-03-20T17:00|Date with explicit PM time
+296|March 20 at 3pm|2024-03-15T10:00|2024-03-20T15:00|Month date with time
+297|18 March|2024-03-15T10:00|2024-03-18T09:00|Date without suffix: 18 March
+298|25th March 10am|2024-03-15T10:00|2024-03-25T10:00|Date with 10am
+
+# ── PUNCTUATION AND UPPERCASE VARIANTS ────────────────────────────────────
+299|AT 5PM|2024-03-15T10:00|2024-03-15T17:00|All-caps AT 5PM
+300|TOMORROW AT 5|2024-03-15T10:00|2024-03-16T17:00|All-caps TOMORROW AT 5
+301|TOMORROW MORNING|2024-03-15T10:00|2024-03-16T09:00|All-caps TOMORROW MORNING
+302|call you at 5!|2024-03-15T10:00|2024-03-15T17:00|Trailing exclamation mark
+303|can we meet at 3pm?|2024-03-15T10:00|2024-03-15T15:00|Trailing question mark
+304|"tomorrow at 5"|2024-03-15T10:00|2024-03-16T17:00|Enclosed in quotes
+305|let's do it by 6pm...|2024-03-15T10:00|2024-03-15T18:00|Trailing ellipsis
+306|IN 2 HOURS!|2024-03-15T10:00|2024-03-15T12:00|All-caps relative duration with exclamation
+307|KAL SHAAM 5 BAJE|2024-03-15T10:00|2024-03-16T17:00|All-caps Hinglish
+308|KAL 5 BAJE!|2024-03-15T10:00|2024-03-16T17:00|All-caps Hinglish with punctuation
+
+# ── TWO TIMES IN ONE SENTENCE (interval / range) ──────────────────────────
+309|between 3 and 5|2024-03-15T10:00|2024-03-15T15:00|between 3 and 5 → picks start time 3pm
+310|from 2 to 4pm|2024-03-15T10:00|2024-03-15T14:00|from 2 to 4pm → picks start time 2pm
+311|between 4pm and 6pm|2024-03-15T10:00|2024-03-15T16:00|between 4pm and 6pm → picks start 4pm
+312|meet between 11am and 12pm|2024-03-15T10:00|2024-03-15T11:00|between 11am and 12pm → picks start 11am
+313|2 se 4 baje ke beech|2024-03-15T10:00|2024-03-15T14:00|Hinglish time range → picks start 2pm
+314|3 se 5 baje tak|2024-03-15T10:00|2024-03-15T15:00|Hinglish time range with tak → picks start 3pm
+
+# ── REFERENCE TIMES: SATURDAY, SUNDAY, 23:30, 31 DECEMBER ────────────────
+315|tomorrow|2024-03-16T10:00|2024-03-17T09:00|Saturday ref: tomorrow is Sunday
+316|next Monday|2024-03-16T10:00|2024-03-18T09:00|Saturday ref: next Monday is Mar 18
+317|this Sunday|2024-03-16T10:00|2024-03-17T09:00|Saturday ref: this Sunday is tomorrow
+318|Sunday at 4pm|2024-03-16T10:00|2024-03-17T16:00|Saturday ref: Sunday at 4pm
+319|Saturday at 5pm|2024-03-16T10:00|2024-03-16T17:00|Saturday ref: Saturday 5pm ahead → today 5pm
+320|Saturday at 8am|2024-03-16T10:00|2024-03-23T08:00|Saturday ref: 8am passed → next Saturday
+321|tomorrow|2024-03-17T10:00|2024-03-18T09:00|Sunday ref: tomorrow is Monday
+322|next Sunday|2024-03-17T10:00|2024-03-24T09:00|Sunday ref: next Sunday is next week
+323|Sunday at 6pm|2024-03-17T10:00|2024-03-17T18:00|Sunday ref: 6pm ahead → today 6pm
+324|Monday at 11am|2024-03-17T10:00|2024-03-18T11:00|Sunday ref: Monday at 11am
+325|today|2024-03-15T23:30|NEEDS_TIME|Friday 23:30 ref: all today slots passed → NEEDS_TIME
+326|aaj|2024-03-15T23:30|NEEDS_TIME|Friday 23:30 ref: aaj slots passed → NEEDS_TIME
+327|tonight|2024-03-15T23:30|NEEDS_TIME|Friday 23:30 ref: 21:00 passed → NEEDS_TIME
+328|tomorrow|2024-03-15T23:30|2024-03-16T09:00|Friday 23:30 ref: tomorrow is Saturday
+329|tomorrow morning|2024-03-15T23:30|2024-03-16T09:00|Friday 23:30 ref: tomorrow morning
+330|in 1 hour|2024-03-15T23:30|2024-03-16T00:30|Friday 23:30 ref: +1h crosses midnight
+331|in 30 minutes|2024-03-15T23:30|2024-03-16T00:00|Friday 23:30 ref: +30m reaches midnight
+332|at 5|2024-03-15T23:30|2024-03-16T17:00|Friday 23:30 ref: 5pm today passed → tomorrow 5pm
+333|kal|2024-03-15T23:30|2024-03-16T09:00|Friday 23:30 ref: kal = tomorrow
+334|kal 10 baje|2024-03-15T23:30|2024-03-16T10:00|Friday 23:30 ref: kal 10am tomorrow
+335|tomorrow|2024-12-31T10:00|2025-01-01T09:00|Dec 31 ref: tomorrow is New Year Day 2025
+336|tomorrow at 5|2024-12-31T10:00|2025-01-01T17:00|Dec 31 ref: tomorrow at 5pm in 2025
+337|kal shaam 5 baje|2024-12-31T10:00|2025-01-01T17:00|Dec 31 ref: kal shaam 5pm in 2025
+338|day after tomorrow|2024-12-31T10:00|2025-01-02T09:00|Dec 31 ref: DAT is Jan 2 2025
+339|in 2 days|2024-12-31T10:00|2025-01-02T10:00|Dec 31 ref: in 2 days → Jan 2 2025
+340|next Friday|2024-12-31T10:00|2025-01-03T09:00|Dec 31 (Tue) ref: next Friday is Jan 3 2025
+341|kal|2024-12-31T10:00|2025-01-01T09:00|Dec 31 ref: kal is Jan 1 2025
+342|parso|2024-12-31T10:00|2025-01-02T09:00|Dec 31 ref: parso is Jan 2 2025
+343|today|2024-12-31T23:30|NEEDS_TIME|Dec 31 23:30 ref: all slots passed → NEEDS_TIME
+344|tomorrow|2024-12-31T23:30|2025-01-01T09:00|Dec 31 23:30 ref: tomorrow is Jan 1 2025
+345|in 1 hour|2024-12-31T23:30|2025-01-01T00:30|Dec 31 23:30 ref: crosses midnight into 2025
+346|in 45 minutes|2024-12-31T23:30|2025-01-01T00:15|Dec 31 23:30 ref: crosses into Jan 1 2025
+
+# ── NON-TIME & IRRELEVANT TEXT ───────────────────────────────────────────
+347|nice weather today huh|2024-03-15T10:00|2024-03-15T14:00|Contains 'today' with no time -> resolves to next future slot 14:00
+348||2024-03-15T10:00|NONE|Blank text
+349|   |2024-03-15T10:00|NONE|Whitespace only
+350|👍🎉🔥|2024-03-15T10:00|NONE|Emoji only
+351|hello|2024-03-15T10:00|NONE|Single word English
+352|namaste|2024-03-15T10:00|NONE|Single word Hindi
+353|how are you doing|2024-03-15T10:00|NONE|English chat without time
+354|kya haal hai bhai|2024-03-15T10:00|NONE|Hinglish chat without time
+355|kaise ho aap|2024-03-15T10:00|NONE|Hinglish chat without time
+356|सब ठीक है|2024-03-15T10:00|NONE|Hindi Devanagari chat without time
+357|ok sounds good|2024-03-15T10:00|NONE|English confirmation without time
+358|nice weather huh|2024-03-15T10:00|NONE|Weather chat without time word
