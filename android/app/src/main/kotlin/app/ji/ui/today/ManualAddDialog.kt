@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import app.ji.data.model.CategoryClassifier
 import app.ji.data.model.Reminder
 import app.ji.data.repository.ReminderRepository
+import app.ji.ui.theme.CategoryTheme
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -53,23 +54,36 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ManualAddDialog(
+    initialSnippet: String = "",
+    initialDueTimeMillis: Long? = null,
+    initialCategory: String? = null,
     onDismiss: () -> Unit,
     onSave: (snippet: String, dueTimeMillis: Long, category: String) -> Unit
 ) {
-    var snippet by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf(Reminder.CATEGORY_PERSONAL) }
-    var isCategoryOverridden by remember { mutableStateOf(false) }
+    var snippet by remember(initialSnippet) { mutableStateOf(initialSnippet) }
+    var selectedCategory by remember(initialCategory) {
+        mutableStateOf(initialCategory ?: Reminder.CATEGORY_PERSONAL)
+    }
+    var isCategoryOverridden by remember(initialCategory) {
+        mutableStateOf(initialCategory != null)
+    }
 
-    // Default to 1 hour from now
-    var dueDateTime by remember {
-        mutableStateOf(LocalDateTime.now().plusHours(1).withSecond(0).withNano(0))
+    // Default to initialDueTimeMillis if provided and in future, else 1 hour from now
+    var dueDateTime by remember(initialDueTimeMillis) {
+        mutableStateOf(
+            if (initialDueTimeMillis != null && initialDueTimeMillis > System.currentTimeMillis()) {
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(initialDueTimeMillis), ZoneId.systemDefault())
+            } else {
+                LocalDateTime.now().plusHours(1).withSecond(0).withNano(0)
+            }
+        )
     }
 
     val categories = listOf(
-        Reminder.CATEGORY_PROFESSIONAL to Color(0xFF2196F3),
-        Reminder.CATEGORY_PERSONAL to Color(0xFF4CAF50),
-        Reminder.CATEGORY_PARCEL to Color(0xFFFFB300),
-        Reminder.CATEGORY_URGENT to Color(0xFFF44336)
+        Reminder.CATEGORY_PROFESSIONAL to CategoryTheme.getColor(Reminder.CATEGORY_PROFESSIONAL).color,
+        Reminder.CATEGORY_PERSONAL to CategoryTheme.getColor(Reminder.CATEGORY_PERSONAL).color,
+        Reminder.CATEGORY_PARCEL to CategoryTheme.getColor(Reminder.CATEGORY_PARCEL).color,
+        Reminder.CATEGORY_URGENT to CategoryTheme.getColor(Reminder.CATEGORY_URGENT).color
     )
 
     AlertDialog(

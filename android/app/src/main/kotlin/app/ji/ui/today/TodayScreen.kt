@@ -1,9 +1,7 @@
 package app.ji.ui.today
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,12 +18,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -33,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,12 +41,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.ji.data.model.CategoryClassifier
 import app.ji.data.model.Reminder
+import app.ji.parser.TimePhraseParser
+import app.ji.ui.theme.CategoryTheme
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -57,11 +60,30 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TodayScreen(
     onNavigateToOnboarding: () -> Unit,
+    onNavigateToPrivacy: () -> Unit,
     modifier: Modifier = Modifier,
+    sharedInitialText: String? = null,
+    onClearSharedText: () -> Unit = {},
     viewModel: TodayViewModel = viewModel()
 ) {
     val reminders by viewModel.reminders.collectAsStateWithLifecycle()
     var showManualAddDialog by remember { mutableStateOf(false) }
+
+    val parsedShared = remember(sharedInitialText) {
+        if (!sharedInitialText.isNullOrBlank()) {
+            val parseResult = TimePhraseParser.parseDetailed(sharedInitialText, LocalDateTime.now())
+            val dueMillis = parseResult?.resolvedDateTime?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
+            val cat = CategoryClassifier.classify(sharedInitialText)
+            val snippet = if (sharedInitialText.length > 120) sharedInitialText.take(117) + "..." else sharedInitialText
+            Triple(snippet, dueMillis, cat)
+        } else null
+    }
+
+    LaunchedEffect(sharedInitialText) {
+        if (!sharedInitialText.isNullOrBlank()) {
+            showManualAddDialog = true
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -78,6 +100,12 @@ fun TodayScreen(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 actions = {
+                    IconButton(onClick = onNavigateToPrivacy) {
+                        Text(
+                            text = "🛡",
+                            fontSize = 18.sp
+                        )
+                    }
                     IconButton(onClick = onNavigateToOnboarding) {
                         Text(
                             text = "⌨",
@@ -123,10 +151,17 @@ fun TodayScreen(
 
             if (showManualAddDialog) {
                 ManualAddDialog(
-                    onDismiss = { showManualAddDialog = false },
+                    initialSnippet = parsedShared?.first ?: "",
+                    initialDueTimeMillis = parsedShared?.second,
+                    initialCategory = parsedShared?.third,
+                    onDismiss = {
+                        showManualAddDialog = false
+                        onClearSharedText()
+                    },
                     onSave = { snippet, dueTimeMillis, category ->
                         viewModel.addManualReminder(snippet, dueTimeMillis, category)
                         showManualAddDialog = false
+                        onClearSharedText()
                     }
                 )
             }
@@ -140,13 +175,8 @@ fun ReminderCard(
     onMarkDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val categoryColor = when (reminder.category) {
-        Reminder.CATEGORY_PROFESSIONAL -> Color(0xFF2196F3) // Blue
-        Reminder.CATEGORY_PERSONAL -> Color(0xFF4CAF50)     // Green
-        Reminder.CATEGORY_PARCEL -> Color(0xFFFFB300)       // Amber
-        Reminder.CATEGORY_URGENT -> Color(0xFFF44336)       // Red
-        else -> Color(0xFF4CAF50)
-    }
+    val isDark = isSystemInDarkTheme()
+    val categoryColors = CategoryTheme.getColor(reminder.category, isDark)
 
     val dueDateTime = LocalDateTime.ofInstant(
         Instant.ofEpochMilli(reminder.dueTime),
@@ -182,13 +212,13 @@ fun ReminderCard(
                         modifier = Modifier
                             .size(8.dp)
                             .clip(CircleShape)
-                            .background(categoryColor)
+                            .background(categoryColors.color)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = reminder.category.uppercase(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = categoryColor,
+                        color = categoryColors.color,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp
                     )
@@ -253,27 +283,29 @@ fun EmptyStateView(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text(text = "✨", fontSize = 32.sp)
+                Text(
+                    text = "✨",
+                    fontSize = 32.sp
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "All Clear for Today",
+            text = "All clear for today!",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Commitments typed with Ji keyboard or added with the + button will appear here.",
-            style = MaterialTheme.typography.bodyMedium,
+            text = "Type commitments like \"call you at 5\" using Ji Keyboard, or tap + below to add one manually.",
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
     }
 }
-

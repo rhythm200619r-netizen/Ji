@@ -95,4 +95,8 @@ dependencies {
 
   // TensorFlow Lite on-device inference (Phase 3)
   implementation(libs.tensorflow.lite)
+
+  // Jetpack Glance (Home-screen widget - Phase 4)
+  implementation(libs.androidx.glance.appwidget)
+  implementation(libs.androidx.glance.material3)
 }

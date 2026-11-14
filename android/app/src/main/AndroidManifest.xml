@@ -14,12 +14,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Ji">
+
+        <!-- Main Activity: Today screen, plus Share-to-Ji & Text Selection actions -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Share text to Ji fallback (SPEC Feature 7) -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
+            <!-- Text-selection action fallback (SPEC Feature 7) -->
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 
@@ -36,6 +53,7 @@
                 android:name="android.view.im"
                 android:resource="@xml/method" />
         </service>
+
         <!-- Receivers for exact alarms, notification actions and device reboot -->
         <receiver
             android:name=".alarm.ReminderAlarmReceiver"
@@ -52,6 +70,18 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
+        </receiver>
+
+        <!-- Home-screen Widget Receiver (Glance - SPEC Feature 8) -->
+        <receiver
+            android:name=".widget.JiGlanceWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ji_widget_info" />
         </receiver>
     </application>
 

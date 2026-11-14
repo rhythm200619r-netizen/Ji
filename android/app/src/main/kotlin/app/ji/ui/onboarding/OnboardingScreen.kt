@@ -2,6 +2,7 @@ package app.ji.ui.onboarding
 
 import android.content.Context
 import android.content.Intent
+import android.os.PowerManager
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,7 @@ fun OnboardingScreen(
 
     var isEnabled by remember { mutableStateOf(checkKeyboardEnabled(context)) }
     var isSelected by remember { mutableStateOf(checkKeyboardSelected(context)) }
+    var isBatteryWhitelisted by remember { mutableStateOf(checkBatteryOptimization(context)) }
     var testText by remember { mutableStateOf("") }
 
     // Re-check status when user returns from settings or input method picker
@@ -64,6 +66,7 @@ fun OnboardingScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 isEnabled = checkKeyboardEnabled(context)
                 isSelected = checkKeyboardSelected(context)
+                isBatteryWhitelisted = checkBatteryOptimization(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -123,7 +126,20 @@ fun OnboardingScreen(
                 }
             )
 
-            // Step 3: Test Field
+            // Step 3: Battery Optimization Guidance (Rule 9)
+            SetupStepCard(
+                title = stringResource(R.string.battery_step_title),
+                description = stringResource(R.string.battery_step_desc),
+                isCompleted = isBatteryWhitelisted,
+                statusText = if (isBatteryWhitelisted) "Unrestricted" else "Optimized",
+                buttonText = stringResource(R.string.battery_step_btn),
+                onButtonClick = {
+                    val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                    context.startActivity(intent)
+                }
+            )
+
+            // Step 4: Test Field
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -259,5 +275,10 @@ private fun checkKeyboardEnabled(context: Context): Boolean {
 private fun checkKeyboardSelected(context: Context): Boolean {
     val currentIme = Settings.Secure.getString(context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
     return currentIme?.contains(context.packageName) == true
+}
+
+private fun checkBatteryOptimization(context: Context): Boolean {
+    val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return false
+    return powerManager.isIgnoringBatteryOptimizations(context.packageName)
 }
 

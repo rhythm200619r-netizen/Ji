@@ -65,6 +65,11 @@ class ReminderRepository(private val context: Context) {
         return dao.getAllReminders()
     }
 
+    suspend fun getWidgetReminders(): List<Reminder> = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis() - 86400000L
+        dao.getAllFuturePending(now)
+    }
+
     suspend fun markAsCompleted(id: Long) = withContext(Dispatchers.IO) {
         dao.updateStatus(id, Reminder.STATUS_COMPLETED)
         scheduler.cancel(id)
