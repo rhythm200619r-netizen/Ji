@@ -33,6 +33,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -69,6 +70,7 @@ fun PrivacyScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var isBatteryWhitelisted by remember { mutableStateOf(checkBatteryOptimization(context)) }
+    var hideReminderText by remember { mutableStateOf(app.ji.data.settings.JiSettings.isHideReminderText(context)) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
@@ -152,6 +154,43 @@ fun PrivacyScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF2E7D32)
                     )
+                }
+            }
+
+            // Card 3: Lock Screen & Widget Privacy Toggle
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Hide reminder text on lock screen and widget",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Hides reminder snippets on the lock screen and home-screen widget, displaying \"Ji reminder\" instead.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Switch(
+                            checked = hideReminderText,
+                            onCheckedChange = {
+                                hideReminderText = it
+                                app.ji.data.settings.JiSettings.setHideReminderText(context, it)
+                            }
+                        )
+                    }
                 }
             }
 

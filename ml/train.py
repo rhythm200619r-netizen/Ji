@@ -29,9 +29,19 @@ def load_data(filepath):
     data = []
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
-            if line.strip():
-                data.append(json.loads(line))
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            try:
+                item = json.loads(line)
+                if item.get("text", "").strip():
+                    data.append(item)
+            except json.JSONDecodeError:
+                continue
     return data
+
+def load_eval_data(filepath):
+    return load_data(filepath)
 
 def build_vocab(train_data, min_freq=1):
     freq = {}
@@ -227,6 +237,41 @@ def main():
     pos_mask = (y_commit_test == 1)
     cat_acc = accuracy_score(test_cat_true[pos_mask], test_cat_preds[pos_mask])
     print(f"Category Accuracy on Commitments: {cat_acc * 100:.2f}%")
+
+    # --- Evaluate on Real-World Test Set (ml/eval/real_world_test.jsonl) ---
+    print("\n=== REAL-WORLD TEST SET EVALUATION ===")
+    real_world_path = "ml/eval/real_world_test.jsonl"
+    real_world_data = load_eval_data(real_world_path)
+
+    if not real_world_data:
+        print(f"File: {real_world_path}")
+        print("Status: 0 samples found (Template file is empty; no fabricated data used).")
+        print("To evaluate on real-world data, add genuine user utterances to ml/eval/real_world_test.jsonl.")
+    else:
+        print(f"Evaluating on {len(real_world_data)} real-world samples...")
+        X_rw, y_commit_rw, y_cat_rw, _ = prepare_dataset(real_world_data, vocab)
+        rw_preds = model.predict(X_rw)
+        rw_commit_probs = rw_preds["commitment"].flatten()
+        rw_pred_labels = (rw_commit_probs >= best_thresh).astype(int)
+
+        rw_acc = accuracy_score(y_commit_rw, rw_pred_labels)
+        rw_prec = precision_score(y_commit_rw, rw_pred_labels, zero_division=0)
+        rw_rec = recall_score(y_commit_rw, rw_pred_labels, zero_division=0)
+        rw_f1 = f1_score(y_commit_rw, rw_pred_labels, zero_division=0)
+        rw_cm = confusion_matrix(y_commit_rw, rw_pred_labels)
+
+        print(f"Real-World Test Accuracy:  {rw_acc * 100:.2f}%")
+        print(f"Real-World Test Precision: {rw_prec * 100:.2f}%")
+        print(f"Real-World Test Recall:    {rw_rec * 100:.2f}%")
+        print(f"Real-World Test F1 Score:  {rw_f1 * 100:.2f}%")
+        print(f"Real-World Confusion Matrix:\n{rw_cm}")
+
+        rw_pos_mask = (y_commit_rw == 1)
+        if np.any(rw_pos_mask):
+            rw_cat_preds = np.argmax(rw_preds["category"], axis=1)
+            rw_cat_true = np.argmax(y_cat_rw, axis=1)
+            rw_cat_acc = accuracy_score(rw_cat_true[rw_pos_mask], rw_cat_preds[rw_pos_mask])
+            print(f"Real-World Category Accuracy: {rw_cat_acc * 100:.2f}%")
 
     if test_prec >= 0.90:
         print("\n>>> TARGET ACHIEVED: Commitment Precision >= 90% on held-out test set! <<<")

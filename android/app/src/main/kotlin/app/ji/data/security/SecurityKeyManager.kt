@@ -92,6 +92,7 @@ object SecurityKeyManager {
     fun wipeKeysAndCredentials(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
+        context.getSharedPreferences("ji_settings_prefs", Context.MODE_PRIVATE).edit().clear().apply()
 
         try {
             val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }

@@ -1,0 +1,4 @@
+# Real-World Test Set Template
+# Schema: {"text": "<sentence>", "is_commitment": <0 or 1>, "category": "<Professional|Personal|Parcel|Urgent>"}
+# Populate with real-world user typed sentences. Do not fabricate data.
+

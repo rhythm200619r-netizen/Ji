@@ -47,6 +47,7 @@ class JiGlanceWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val repository = ReminderRepository(context)
+        val hideReminderText = app.ji.data.settings.JiSettings.isHideReminderText(context)
         val reminders = try {
             repository.getWidgetReminders()
         } catch (_: Throwable) {
@@ -55,14 +56,14 @@ class JiGlanceWidget : GlanceAppWidget() {
 
         provideContent {
             GlanceTheme {
-                JiWidgetContent(reminders)
+                JiWidgetContent(reminders, hideReminderText)
             }
         }
     }
 }
 
 @androidx.compose.runtime.Composable
-private fun JiWidgetContent(reminders: List<Reminder>) {
+private fun JiWidgetContent(reminders: List<Reminder>, hideReminderText: Boolean) {
     val urgentCount = reminders.count { it.category == Reminder.CATEGORY_URGENT }
     val now = LocalDate.now()
     val todayCount = reminders.count {
@@ -132,7 +133,7 @@ private fun JiWidgetContent(reminders: List<Reminder>) {
                 modifier = GlanceModifier.fillMaxSize()
             ) {
                 items(reminders.take(6), itemId = { it.id }) { reminder ->
-                    WidgetReminderItem(reminder)
+                    WidgetReminderItem(reminder, hideReminderText)
                     Spacer(modifier = GlanceModifier.height(6.dp))
                 }
             }
@@ -141,7 +142,7 @@ private fun JiWidgetContent(reminders: List<Reminder>) {
 }
 
 @androidx.compose.runtime.Composable
-private fun WidgetReminderItem(reminder: Reminder) {
+private fun WidgetReminderItem(reminder: Reminder, hideReminderText: Boolean) {
     val dueDateTime = LocalDateTime.ofInstant(
         Instant.ofEpochMilli(reminder.dueTime),
         ZoneId.systemDefault()
@@ -175,9 +176,11 @@ private fun WidgetReminderItem(reminder: Reminder) {
 
         Spacer(modifier = GlanceModifier.width(8.dp))
 
+        val displaySnippet = if (hideReminderText) "Ji reminder" else reminder.snippet
+
         Column(modifier = GlanceModifier.defaultWeight()) {
             Text(
-                text = reminder.snippet,
+                text = displaySnippet,
                 maxLines = 1,
                 style = TextStyle(
                     fontSize = 12.sp,

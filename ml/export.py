@@ -106,6 +106,25 @@ def main():
     assert tflite_prec >= 0.90, f"TFLite precision ({tflite_prec}) fell below 90%!"
     print("CHECK PASSED: TFLite model achieved >= 90% precision on held-out test set!")
 
+    # Real-world test evaluation
+    real_world_path = "ml/eval/real_world_test.jsonl"
+    rw_data = load_data(real_world_path)
+    if not rw_data:
+        print(f"\nReal-world test file ({real_world_path}): 0 samples (Template is empty; no fabricated data used).")
+    else:
+        print(f"\nEvaluating TFLite on {len(rw_data)} real-world samples...")
+        rw_y_true = [item["is_commitment"] for item in rw_data]
+        rw_y_pred = []
+        for item in rw_data:
+            ids = np.array([encode_text(item["text"], vocab, max_len=MAX_SEQ_LEN)], dtype=np.int32)
+            interpreter.set_tensor(input_details[0]["index"], ids)
+            interpreter.invoke()
+            commit_prob = interpreter.get_tensor(commit_idx)[0][0]
+            rw_y_pred.append(1 if commit_prob >= threshold else 0)
+        print(f"Real-World Accuracy:  {accuracy_score(rw_y_true, rw_y_pred) * 100:.2f}%")
+        print(f"Real-World Precision: {precision_score(rw_y_true, rw_y_pred, zero_division=0) * 100:.2f}%")
+        print(f"Real-World Recall:    {recall_score(rw_y_true, rw_y_pred, zero_division=0) * 100:.2f}%")
+
     # Copy assets to Android app assets directory
     android_assets_dir = "android/app/src/main/assets"
     os.makedirs(android_assets_dir, exist_ok=True)

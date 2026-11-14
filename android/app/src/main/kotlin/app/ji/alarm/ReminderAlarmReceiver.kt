@@ -75,7 +75,18 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
             else -> Color.rgb(76, 175, 80)
         }
 
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val hideReminderText = app.ji.data.settings.JiSettings.isHideReminderText(context)
+
+        val publicNotification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Ji")
+            .setContentText("Ji reminder")
+            .setColor(accentColor)
+            .setContentIntent(openPendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Ji Reminder • $category")
             .setContentText(snippet)
@@ -85,10 +96,13 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(publicNotification)
             .setVibrate(longArrayOf(0, 300, 150, 300))
             .addAction(0, "✓ Mark as Done", donePendingIntent)
             .addAction(0, "Dismiss", dismissPendingIntent)
-            .build()
+
+        val notification = notificationBuilder.build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         notificationManager?.notify(reminderId.toInt(), notification)
