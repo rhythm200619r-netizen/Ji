@@ -1,0 +1,260 @@
+{"text": "Metro starts at tomorrow 2 pm tomorrow", "is_commitment": 0, "category": "None"}
+{"text": "Doctor is available only after 6:30 pm", "is_commitment": 0, "category": "None"}
+{"text": "kal kal dopahar 3 baje baje ticket book karunga", "is_commitment": 1, "category": "Personal"}
+{"text": "मैं परसों सुबह 10 बजे बजे डिलीवरी वाले को ओटीपी दे दूंगा", "is_commitment": 1, "category": "Parcel"}
+{"text": "Urgent: I will take my insulin shot at 4 pm", "is_commitment": 1, "category": "Urgent"}
+{"text": "मैं रात 9 बजे बजे तक बिजली का बिल भर दूंगा", "is_commitment": 1, "category": "Personal"}
+{"text": "Will meet the dentist at in 2 hours", "is_commitment": 1, "category": "Personal"}
+{"text": "Emergency: need to reach hospital by next Monday at 3 pm", "is_commitment": 1, "category": "Urgent"}
+{"text": "अर्जेंट: परसों सुबह 10 बजे बजे तक बिल का भुगतान करना है", "is_commitment": 1, "category": "Urgent"}
+{"text": "Is the store open at 6:30 pm?", "is_commitment": 0, "category": "None"}
+{"text": "I'll ping you after the standup at noon", "is_commitment": 1, "category": "Professional"}
+{"text": "parso kal dopahar 3 baje baje boss ko presentation dikhaunga", "is_commitment": 1, "category": "Professional"}
+{"text": "main kal shaam parso subah 10 baje milta hoon", "is_commitment": 1, "category": "Personal"}
+{"text": "kal tak draft bhejta hoon kal dopahar 3 baje", "is_commitment": 1, "category": "Professional"}
+{"text": "मैंने कल शाम 2 घंटे में बजे फोन किया था", "is_commitment": 0, "category": "None"}
+{"text": "I will complete the bug fixes before in 2 hours", "is_commitment": 1, "category": "Professional"}
+{"text": "Will you be free at 5 pm?", "is_commitment": 0, "category": "None"}
+{"text": "Will receive the shipment at in 2 hours", "is_commitment": 1, "category": "Parcel"}
+{"text": "I will check the gate for the parcel at tomorrow at 10 am", "is_commitment": 1, "category": "Parcel"}
+{"text": "Metro starts at in 2 hours tomorrow", "is_commitment": 0, "category": "None"}
+{"text": "कल दोपहर कल शाम 6 बजे बजे तक सारे डाक्यूमेंट्स भेज दूंगा", "is_commitment": 1, "category": "Professional"}
+{"text": "The bank opens at noon", "is_commitment": 0, "category": "None"}
+{"text": "Will book train tickets at tomorrow morning", "is_commitment": 1, "category": "Personal"}
+{"text": "very urgent: shaam 7:30 baje baje se pehle bill pay karna hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "I'll pick up kids from school at 8 am", "is_commitment": 1, "category": "Personal"}
+{"text": "Will pick up the package from reception at in 2 hours", "is_commitment": 1, "category": "Parcel"}
+{"text": "कल दोपहर परसों सुबह 10 बजे बजे कूरियर रिसीव कर लूंगा", "is_commitment": 1, "category": "Parcel"}
+{"text": "emergency: dopahar 2 baje baje doctor ke paas jana hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "हम कल 5 बजे बजे मिले थे", "is_commitment": 0, "category": "None"}
+{"text": "The movie starts at 11:30 am", "is_commitment": 0, "category": "None"}
+{"text": "वह सुबह 8 बजे बजे फोन करेगा", "is_commitment": 0, "category": "None"}
+{"text": "I will email the client deck by tomorrow morning", "is_commitment": 1, "category": "Professional"}
+{"text": "I will collect the Amazon parcel at tomorrow 2 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "movie ka show parso subah 10 baje baje hai", "is_commitment": 0, "category": "None"}
+{"text": "The train leaves at noon", "is_commitment": 0, "category": "None"}
+{"text": "I'll join the team sync at tomorrow 2 pm", "is_commitment": 1, "category": "Professional"}
+{"text": "I will clean the room at tonight at 9", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll collect the medicine package at tomorrow morning", "is_commitment": 1, "category": "Parcel"}
+{"text": "kal gym jaunga kal shaam 6 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "I will call mom at midnight", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll pay the electricity bill by 6:30 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "अर्जेंट: रात 9 बजे बजे तक बिल का भुगतान करना है", "is_commitment": 1, "category": "Urgent"}
+{"text": "Sunset is at 4 pm today", "is_commitment": 0, "category": "None"}
+{"text": "urgent call hai client ke saath kal dopahar 3 baje baje attend karna hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "Who is presenting at in 2 hours?", "is_commitment": 0, "category": "None"}
+{"text": "Immediately call the doctor at in 2 hours", "is_commitment": 1, "category": "Urgent"}
+{"text": "I will water the plants at next Monday at 3 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll collect the medicine package at next Monday at 3 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "Will send the updated resume by next Monday at 3 pm", "is_commitment": 1, "category": "Professional"}
+{"text": "I will clean the room at 6:30 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "maine kal dopahar 2 baje baje mail kar diya tha", "is_commitment": 0, "category": "None"}
+{"text": "Will share the presentation slides by midnight", "is_commitment": 1, "category": "Professional"}
+{"text": "Can you send it by in 2 hours?", "is_commitment": 0, "category": "None"}
+{"text": "I will schedule the design review at noon", "is_commitment": 1, "category": "Professional"}
+{"text": "I'll wrap up the sprint backlog by midnight", "is_commitment": 1, "category": "Professional"}
+{"text": "main subah 8 baje baje tak saari files upload kar dunga", "is_commitment": 1, "category": "Professional"}
+{"text": "shaam kal dopahar 3 baje baje tak report mail kar dunga", "is_commitment": 1, "category": "Professional"}
+{"text": "मैं कल शाम 6 बजे बजे तक बिजली का बिल भर दूंगा", "is_commitment": 1, "category": "Personal"}
+{"text": "We met yesterday at tomorrow 2 pm", "is_commitment": 0, "category": "None"}
+{"text": "main kal shaam shaam 7:30 baje milta hoon", "is_commitment": 1, "category": "Personal"}
+{"text": "kal maine shaam 7:30 baje baje call kiya tha", "is_commitment": 0, "category": "None"}
+{"text": "मैं कल सुबह कल शाम 6 बजे रिपोर्ट भेज दूंगा", "is_commitment": 1, "category": "Professional"}
+{"text": "Results will be announced at 11:30 am", "is_commitment": 0, "category": "None"}
+{"text": "kal client meeting prepare karunga 5 baje", "is_commitment": 1, "category": "Professional"}
+{"text": "Will receive the shipment at 4 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "Current time is in 2 hours", "is_commitment": 0, "category": "None"}
+{"text": "sir parso subah 10 baje baje class lenge", "is_commitment": 0, "category": "None"}
+{"text": "main 2 ghante mein baje tak saari files upload kar dunga", "is_commitment": 1, "category": "Professional"}
+{"text": "I will send the quarterly report at tomorrow morning", "is_commitment": 1, "category": "Professional"}
+{"text": "I'll coordinate with the product manager at 5 pm", "is_commitment": 1, "category": "Professional"}
+{"text": "delivery wale ko 2 ghante mein call karke OTP dunga", "is_commitment": 1, "category": "Parcel"}
+{"text": "मैं 2 घंटे में बजे टीम के साथ सिंक कॉल ज्वाइन कर लूंगा", "is_commitment": 1, "category": "Professional"}
+{"text": "Will meet the courier agent at 4 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "Lunch break is at tonight at 9", "is_commitment": 0, "category": "None"}
+{"text": "main 5 baje baje bike service karwane jaunga", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll call you at tomorrow at 10 am", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll transfer the rent money by tomorrow morning", "is_commitment": 1, "category": "Personal"}
+{"text": "emergency: 2 ghante mein baje doctor ke paas jana hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "I'll reach your place by 11:30 am", "is_commitment": 1, "category": "Personal"}
+{"text": "kal sham ko chai pe milte hain kal dopahar 3 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "Immediately call the doctor at tonight at 9", "is_commitment": 1, "category": "Urgent"}
+{"text": "ASAP: fix server downtime before 8 am", "is_commitment": 1, "category": "Urgent"}
+{"text": "Are we meeting at tomorrow at 10 am?", "is_commitment": 0, "category": "None"}
+{"text": "Will collect the Swiggy order at 8 am", "is_commitment": 1, "category": "Parcel"}
+{"text": "Priya mentioned she will come at 5 pm", "is_commitment": 0, "category": "None"}
+{"text": "Who is presenting at tomorrow 2 pm?", "is_commitment": 0, "category": "None"}
+{"text": "kya meeting 5 baje baje hai?", "is_commitment": 0, "category": "None"}
+{"text": "I submitted the report at tonight at 9", "is_commitment": 0, "category": "None"}
+{"text": "सर रात 9 बजे बजे क्लास लेंगे", "is_commitment": 0, "category": "None"}
+{"text": "I'll coordinate with the product manager at 8 am", "is_commitment": 1, "category": "Professional"}
+{"text": "मैं 2 घंटे में बजे अमेज़न पार्सल कलेक्ट कर लूंगा", "is_commitment": 1, "category": "Parcel"}
+{"text": "I'll complete the code review by 4 pm", "is_commitment": 1, "category": "Professional"}
+{"text": "The flight lands at tomorrow at 10 am", "is_commitment": 0, "category": "None"}
+{"text": "Will wish him happy birthday at tomorrow morning", "is_commitment": 1, "category": "Personal"}
+{"text": "yeh dukan shaam subah 8 baje baje tak khuli rehti hai", "is_commitment": 0, "category": "None"}
+{"text": "Can you send it by tomorrow at 10 am?", "is_commitment": 0, "category": "None"}
+{"text": "Emergency: need to reach hospital by noon", "is_commitment": 1, "category": "Urgent"}
+{"text": "Sunset is at 8 am today", "is_commitment": 0, "category": "None"}
+{"text": "Swiggy order kal shaam 6 baje collect karna hai", "is_commitment": 1, "category": "Parcel"}
+{"text": "मैं कल शाम परसों सुबह 10 बजे बजे बॉस को प्रोजेक्ट स्टेटस दे दूंगा", "is_commitment": 1, "category": "Professional"}
+{"text": "Are you coming at next Monday at 3 pm?", "is_commitment": 0, "category": "None"}
+{"text": "I'll pick up kids from school at midnight", "is_commitment": 1, "category": "Personal"}
+{"text": "Will send the architecture diagram by 4 pm", "is_commitment": 1, "category": "Professional"}
+{"text": "Will share the presentation slides by 11:30 am", "is_commitment": 1, "category": "Professional"}
+{"text": "The weather is very nice today", "is_commitment": 0, "category": "None"}
+{"text": "Immediately call the doctor at tomorrow morning", "is_commitment": 1, "category": "Urgent"}
+{"text": "I'll reach your place by tomorrow morning", "is_commitment": 1, "category": "Personal"}
+{"text": "kal gym jaunga shaam 7:30 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "maine shaam 7:30 baje baje baat ki thi", "is_commitment": 0, "category": "None"}
+{"text": "Will book train tickets at tomorrow 2 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "Will pick up the package from reception at tomorrow 2 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "He arrived 2 hours ago", "is_commitment": 0, "category": "None"}
+{"text": "We met yesterday at 8 am", "is_commitment": 0, "category": "None"}
+{"text": "Class begins at 6:30 pm", "is_commitment": 0, "category": "None"}
+{"text": "मैं 2 घंटे में बजे दवाई ले लूंगा", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll pick up the food delivery at tomorrow 2 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "sir subah 8 baje baje class lenge", "is_commitment": 0, "category": "None"}
+{"text": "She said the presentation is at midnight", "is_commitment": 0, "category": "None"}
+{"text": "movie ka show kal shaam 6 baje baje hai", "is_commitment": 0, "category": "None"}
+{"text": "I will send the quarterly report at 8 am", "is_commitment": 1, "category": "Professional"}
+{"text": "Urgent client escalation call at tonight at 9, I must join", "is_commitment": 1, "category": "Urgent"}
+{"text": "I'll take my medicine at 5 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "Current time is 5 pm", "is_commitment": 0, "category": "None"}
+{"text": "kal dost se milkar books wapas karunga subah 8 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "अति आवश्यक: परसों सुबह 10 बजे बजे तक रिपोर्ट जमा करनी है", "is_commitment": 1, "category": "Urgent"}
+{"text": "I'll call you at next Monday at 3 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "मम्मी रात 9 बजे बजे मंदिर जाएंगी", "is_commitment": 0, "category": "None"}
+{"text": "urgent: dopahar 2 baje baje hospital pahunchna hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "I will check the gate for the parcel at 4 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "I will water the plants at tomorrow 2 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll send the audit logs at 8 am", "is_commitment": 1, "category": "Professional"}
+{"text": "aaj kal dopahar 3 baje baje baarish ho sakti hai", "is_commitment": 0, "category": "None"}
+{"text": "I will give the delivery OTP at tomorrow morning", "is_commitment": 1, "category": "Parcel"}
+{"text": "parso 5 baje baje boss ko presentation dikhaunga", "is_commitment": 1, "category": "Professional"}
+{"text": "The flight lands at midnight", "is_commitment": 0, "category": "None"}
+{"text": "I'll collect the medicine package at 11:30 am", "is_commitment": 1, "category": "Parcel"}
+{"text": "Emergency: need to reach hospital by tomorrow at 10 am", "is_commitment": 1, "category": "Urgent"}
+{"text": "Critical: renew car insurance before tomorrow at 10 am", "is_commitment": 1, "category": "Urgent"}
+{"text": "I'll wrap up the sprint backlog by noon", "is_commitment": 1, "category": "Professional"}
+{"text": "flight parso subah 10 baje baje land karegi", "is_commitment": 0, "category": "None"}
+{"text": "Will meet the dentist at midnight", "is_commitment": 1, "category": "Personal"}
+{"text": "Will buy groceries at tomorrow morning", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll return the library book by midnight", "is_commitment": 1, "category": "Personal"}
+{"text": "I will send the quarterly report at next Monday at 3 pm", "is_commitment": 1, "category": "Professional"}
+{"text": "kal client meeting prepare karunga raat 9 baje", "is_commitment": 1, "category": "Professional"}
+{"text": "Immediately call the doctor at 6:30 pm", "is_commitment": 1, "category": "Urgent"}
+{"text": "main 5 baje baje dawai le lunga", "is_commitment": 1, "category": "Personal"}
+{"text": "I will send the quarterly report at tonight at 9", "is_commitment": 1, "category": "Professional"}
+{"text": "She said the presentation is at next Monday at 3 pm", "is_commitment": 0, "category": "None"}
+{"text": "I'll ping you after the standup at tonight at 9", "is_commitment": 1, "category": "Professional"}
+{"text": "Is the store open at 11:30 am?", "is_commitment": 0, "category": "None"}
+{"text": "Will share the API documentation before tomorrow at 10 am", "is_commitment": 1, "category": "Professional"}
+{"text": "parcel kal shaam 6 baje baje deliver ho gaya tha", "is_commitment": 0, "category": "None"}
+{"text": "Talk to you later", "is_commitment": 0, "category": "None"}
+{"text": "I will book the movie tickets at tomorrow morning", "is_commitment": 1, "category": "Personal"}
+{"text": "kal shaam ko tennis khelenge subah 8 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "Urgent: I will take my insulin shot at in 2 hours", "is_commitment": 1, "category": "Urgent"}
+{"text": "kal shaam ko call karke status bataunga 2 ghante mein", "is_commitment": 1, "category": "Professional"}
+{"text": "The meeting is scheduled at in 2 hours", "is_commitment": 0, "category": "None"}
+{"text": "kal dost se milkar books wapas karunga raat 9 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "courier boy aa raha hai dopahar 2 baje parcel le lunga", "is_commitment": 1, "category": "Parcel"}
+{"text": "Urgent: I will take my insulin shot at 8 am", "is_commitment": 1, "category": "Urgent"}
+{"text": "Swiggy order 2 ghante mein collect karna hai", "is_commitment": 1, "category": "Parcel"}
+{"text": "kya tum 2 ghante mein baje aa rahe ho?", "is_commitment": 0, "category": "None"}
+{"text": "Urgent: I will take my insulin shot at 6:30 pm", "is_commitment": 1, "category": "Urgent"}
+{"text": "doctor kal shaam 6 baje baje ke baad hi milega", "is_commitment": 0, "category": "None"}
+{"text": "I'll transfer the rent money by tonight at 9", "is_commitment": 1, "category": "Personal"}
+{"text": "The bus arrives at tonight at 9", "is_commitment": 0, "category": "None"}
+{"text": "Store closes at 4 pm", "is_commitment": 0, "category": "None"}
+{"text": "I'll pick up the food delivery at tomorrow at 10 am", "is_commitment": 1, "category": "Parcel"}
+{"text": "kal 2 ghante mein baje ticket book karunga", "is_commitment": 1, "category": "Personal"}
+{"text": "main 2 ghante mein baje parcel collect kar lunga", "is_commitment": 1, "category": "Parcel"}
+{"text": "kal doctor ke paas jaana hai shaam 7:30 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "main parso project review complete karunga 2 ghante mein", "is_commitment": 1, "category": "Professional"}
+{"text": "Doctor is available only after noon", "is_commitment": 0, "category": "None"}
+{"text": "main shaam 7:30 baje baje dawai le lunga", "is_commitment": 1, "category": "Personal"}
+{"text": "Did you get the email at tomorrow morning?", "is_commitment": 0, "category": "None"}
+{"text": "मीटिंग कितने बजे शुरू होगी?", "is_commitment": 0, "category": "None"}
+{"text": "We completed the task at noon", "is_commitment": 0, "category": "None"}
+{"text": "I'll reach your place by tomorrow at 10 am", "is_commitment": 1, "category": "Personal"}
+{"text": "I promise to send the invoice by midnight", "is_commitment": 1, "category": "Professional"}
+{"text": "jaldi karo raat 9 baje deadline hai submit karna hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "The concert begins at 6:30 pm", "is_commitment": 0, "category": "None"}
+{"text": "Urgent: I will take my insulin shot at midnight", "is_commitment": 1, "category": "Urgent"}
+{"text": "kya tum dopahar 2 baje baje free ho?", "is_commitment": 0, "category": "None"}
+{"text": "I'll pick up the food delivery at in 2 hours", "is_commitment": 1, "category": "Parcel"}
+{"text": "kal raat 9 baje baje manager se 1-on-1 schedule karunga", "is_commitment": 1, "category": "Professional"}
+{"text": "bahut zaroori hai 2 ghante mein baje tak fee jama karni hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "Will receive the shipment at 11:30 am", "is_commitment": 1, "category": "Parcel"}
+{"text": "Museum entry closes at 4 pm", "is_commitment": 0, "category": "None"}
+{"text": "Where should we meet at tomorrow morning?", "is_commitment": 0, "category": "None"}
+{"text": "kal tak draft bhejta hoon parso subah 10 baje", "is_commitment": 1, "category": "Professional"}
+{"text": "I will receive the delivery at noon", "is_commitment": 1, "category": "Parcel"}
+{"text": "Will follow up with the vendor by 4 pm", "is_commitment": 1, "category": "Professional"}
+{"text": "I will water the plants at 6:30 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "I'll complete the code review by noon", "is_commitment": 1, "category": "Professional"}
+{"text": "Urgent client escalation call at 8 am, I must join", "is_commitment": 1, "category": "Urgent"}
+{"text": "The manager will take the interview at midnight", "is_commitment": 0, "category": "None"}
+{"text": "मैं कल शाम 5 बजे बजे बॉस को प्रोजेक्ट स्टेटस दे दूंगा", "is_commitment": 1, "category": "Professional"}
+{"text": "Will buy groceries at tomorrow 2 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "Is the store open at 4 pm?", "is_commitment": 0, "category": "None"}
+{"text": "I sent the email at tomorrow morning", "is_commitment": 0, "category": "None"}
+{"text": "Class begins at tomorrow morning", "is_commitment": 0, "category": "None"}
+{"text": "I will send the contract draft by tomorrow morning", "is_commitment": 1, "category": "Professional"}
+{"text": "Breakfast is served until in 2 hours", "is_commitment": 0, "category": "None"}
+{"text": "main 2 ghante mein baje call karta hoon", "is_commitment": 1, "category": "Personal"}
+{"text": "The guest is arriving at in 2 hours", "is_commitment": 0, "category": "None"}
+{"text": "kal movie dekhne chalte hain 5 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "courier pickup ke liye 5 baje ghar par rahunga", "is_commitment": 1, "category": "Parcel"}
+{"text": "Urgent reminder: board flight at tomorrow at 10 am", "is_commitment": 1, "category": "Urgent"}
+{"text": "kal subah 8 baje baje manager se 1-on-1 schedule karunga", "is_commitment": 1, "category": "Professional"}
+{"text": "Will meet the courier agent at tomorrow at 10 am", "is_commitment": 1, "category": "Parcel"}
+{"text": "main subah 8 baje ko code push kar dunga", "is_commitment": 1, "category": "Professional"}
+{"text": "Good morning have a nice day", "is_commitment": 0, "category": "None"}
+{"text": "sir kal shaam 6 baje baje class lenge", "is_commitment": 0, "category": "None"}
+{"text": "Flipkart delivery parso subah 10 baje aayegi main le lunga", "is_commitment": 1, "category": "Parcel"}
+{"text": "Rahul is booking the tickets at 8 am", "is_commitment": 0, "category": "None"}
+{"text": "main kal shaam 6 baje baje tak release notes submit kar dunga", "is_commitment": 1, "category": "Professional"}
+{"text": "kal subah meeting mein presentation de dunga parso subah 10 baje", "is_commitment": 1, "category": "Professional"}
+{"text": "I'll pay the electricity bill by tomorrow morning", "is_commitment": 1, "category": "Personal"}
+{"text": "मैं कल शाम 6 बजे बजे मम्मी को कॉल करूंगा", "is_commitment": 1, "category": "Personal"}
+{"text": "कल शाम सुबह 8 बजे बजे जिम जाऊंगा", "is_commitment": 1, "category": "Personal"}
+{"text": "maine dopahar 2 baje baje report bhej di thi", "is_commitment": 0, "category": "None"}
+{"text": "The concert begins at tonight at 9", "is_commitment": 0, "category": "None"}
+{"text": "Will send the updated resume by 11:30 am", "is_commitment": 1, "category": "Professional"}
+{"text": "woh log kal shaam 6 baje baje nikal rahe hain", "is_commitment": 0, "category": "None"}
+{"text": "Urgent: I will take my insulin shot at 5 pm", "is_commitment": 1, "category": "Urgent"}
+{"text": "मैं 5 बजे बजे डिलीवरी वाले को ओटीपी दे दूंगा", "is_commitment": 1, "category": "Parcel"}
+{"text": "The parcel was delivered at tomorrow morning", "is_commitment": 0, "category": "None"}
+{"text": "Metro starts at 5 pm tomorrow", "is_commitment": 0, "category": "None"}
+{"text": "I'll drop off the return parcel by next Monday at 3 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "main kal shaam 6 baje baje tak PR approve kar dunga", "is_commitment": 1, "category": "Professional"}
+{"text": "Are you coming at tonight at 9?", "is_commitment": 0, "category": "None"}
+{"text": "Amit is visiting the doctor at in 2 hours", "is_commitment": 0, "category": "None"}
+{"text": "The meeting is scheduled at 5 pm", "is_commitment": 0, "category": "None"}
+{"text": "I will give the delivery OTP at 4 pm", "is_commitment": 1, "category": "Parcel"}
+{"text": "Metro starts at noon tomorrow", "is_commitment": 0, "category": "None"}
+{"text": "Lunch break is at tomorrow morning", "is_commitment": 0, "category": "None"}
+{"text": "jaldi karo kal dopahar 3 baje deadline hai submit karna hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "Will book train tickets at midnight", "is_commitment": 1, "category": "Personal"}
+{"text": "kal dost se milkar books wapas karunga 5 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "urgent: 2 ghante mein baje hospital pahunchna hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "I'll return the library book by next Monday at 3 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "Will book train tickets at 5 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "kal subah kal shaam 6 baje baje sync meeting attend karunga", "is_commitment": 1, "category": "Professional"}
+{"text": "I'll call you at 11:30 am", "is_commitment": 1, "category": "Personal"}
+{"text": "shaam dopahar 2 baje baje tak report mail kar dunga", "is_commitment": 1, "category": "Professional"}
+{"text": "I sent the email at in 2 hours", "is_commitment": 0, "category": "None"}
+{"text": "main subah 8 baje baje room saaf karunga", "is_commitment": 1, "category": "Personal"}
+{"text": "The concert begins at 5 pm", "is_commitment": 0, "category": "None"}
+{"text": "urgent: kal shaam 6 baje baje tak flight pakadni hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "The parcel was delivered at tomorrow at 10 am", "is_commitment": 0, "category": "None"}
+{"text": "bahut zaroori hai parso subah 10 baje baje tak fee jama karni hai", "is_commitment": 1, "category": "Urgent"}
+{"text": "kal subah meeting mein presentation de dunga kal shaam 6 baje", "is_commitment": 1, "category": "Professional"}
+{"text": "Very urgent: pay credit card bill before tomorrow 2 pm", "is_commitment": 1, "category": "Urgent"}
+{"text": "I'll pay the electricity bill by tomorrow 2 pm", "is_commitment": 1, "category": "Personal"}
+{"text": "kal doctor ke paas jaana hai kal shaam 6 baje", "is_commitment": 1, "category": "Personal"}
+{"text": "Urgent: I must submit this report before 4 pm", "is_commitment": 1, "category": "Urgent"}
+{"text": "main parso subah 10 baje baje tak release notes submit kar dunga", "is_commitment": 1, "category": "Professional"}
+{"text": "shaam ko dinner pe chalte hain parso subah 10 baje", "is_commitment": 1, "category": "Personal"}

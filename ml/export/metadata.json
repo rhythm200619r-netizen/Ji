@@ -1,0 +1,14 @@
+{
+  "threshold": 0.3,
+  "max_seq_len": 32,
+  "categories": [
+    "Professional",
+    "Personal",
+    "Parcel",
+    "Urgent"
+  ],
+  "test_precision": 1.0,
+  "test_recall": 1.0,
+  "test_f1": 1.0,
+  "category_accuracy": 1.0
+}

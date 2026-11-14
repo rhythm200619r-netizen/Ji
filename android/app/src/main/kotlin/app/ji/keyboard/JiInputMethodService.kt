@@ -4,6 +4,7 @@ import android.inputmethodservice.InputMethodService
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import app.ji.classifier.CommitmentClassifierProvider
 import app.ji.data.repository.ReminderRepository
 import app.ji.parser.TimePhraseParser
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +21,7 @@ class JiInputMethodService : InputMethodService(), JiKeyboardView.KeyActionListe
     private var isSensitiveField = false
     private var candidateSnippet: String? = null
     private var candidateDueTimeMillis: Long = 0L
+    private var candidateCategory: String? = null
 
     override fun onCreateInputView(): View {
         val view = JiKeyboardView(this)
@@ -42,6 +44,7 @@ class JiInputMethodService : InputMethodService(), JiKeyboardView.KeyActionListe
         super.onFinishInputView(finishingInput)
         candidateSnippet = null
         candidateDueTimeMillis = 0L
+        candidateCategory = null
         keyboardView?.hideReminderChip()
     }
 
@@ -99,14 +102,16 @@ class JiInputMethodService : InputMethodService(), JiKeyboardView.KeyActionListe
     override fun onChipAccepted(chipText: String) {
         val snippet = candidateSnippet
         val dueTime = candidateDueTimeMillis
+        val category = candidateCategory
         candidateSnippet = null
         candidateDueTimeMillis = 0L
+        candidateCategory = null
         keyboardView?.hideReminderChip()
 
         if (snippet != null && dueTime > 0) {
             CoroutineScope(Dispatchers.IO).launch {
                 val repository = ReminderRepository(applicationContext)
-                val created = repository.createReminder(snippet, dueTime)
+                val created = repository.createReminder(snippet, dueTime, categoryOverride = category)
                 withContext(Dispatchers.Main) {
                     val timeFormatted = SentenceExtractor.formatTimeForChip(
                         LocalDateTime.ofInstant(Instant.ofEpochMilli(created.dueTime), ZoneId.systemDefault())
@@ -124,6 +129,7 @@ class JiInputMethodService : InputMethodService(), JiKeyboardView.KeyActionListe
     override fun onChipDismissed() {
         candidateSnippet = null
         candidateDueTimeMillis = 0L
+        candidateCategory = null
         keyboardView?.hideReminderChip()
     }
 
@@ -141,33 +147,49 @@ class JiInputMethodService : InputMethodService(), JiKeyboardView.KeyActionListe
         if (sentence.isBlank()) {
             candidateSnippet = null
             candidateDueTimeMillis = 0L
+            candidateCategory = null
             keyboardView?.hideReminderChip()
             return
         }
 
-        // Run purely in-memory time phrase parser.
-        // Wrapped in try/catch: if the parser throws (e.g. regex engine differences),
-        // fail silently (no chip). Never log the exception with typed text.
+        // Run purely in-memory time phrase parser and commitment classifier.
+        // Wrapped in try/catch: if anything throws, fail silently (no chip).
+        // Never log the exception with typed text (Rule 3).
         try {
             val result = TimePhraseParser.parseDetailed(sentence, LocalDateTime.now())
             val resolved = result?.resolvedDateTime
             if (resolved != null) {
-                val snippet = SentenceExtractor.createSnippet(sentence)
-                val timeFormatted = SentenceExtractor.formatTimeForChip(resolved)
-                val dueMillis = resolved.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                // Phase 3: Evaluate commitment classifier (TFLite ML with Rule-based fallback)
+                // SPEC: "I'll send it by 5" = yes; "the meeting is at 5" = no
+                val classifier = CommitmentClassifierProvider.getClassifier(applicationContext)
+                val classification = classifier.classify(sentence)
 
-                candidateSnippet = snippet
-                candidateDueTimeMillis = dueMillis
-                keyboardView?.showReminderChip("Remind: $snippet, $timeFormatted?")
+                if (classification.isCommitment) {
+                    val snippet = SentenceExtractor.createSnippet(sentence)
+                    val timeFormatted = SentenceExtractor.formatTimeForChip(resolved)
+                    val dueMillis = resolved.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+                    candidateSnippet = snippet
+                    candidateDueTimeMillis = dueMillis
+                    candidateCategory = classification.category
+                    keyboardView?.showReminderChip("Remind: $snippet, $timeFormatted?")
+                } else {
+                    candidateSnippet = null
+                    candidateDueTimeMillis = 0L
+                    candidateCategory = null
+                    keyboardView?.hideReminderChip()
+                }
             } else {
                 candidateSnippet = null
                 candidateDueTimeMillis = 0L
+                candidateCategory = null
                 keyboardView?.hideReminderChip()
             }
         } catch (_: Throwable) {
             // Fail silently – do not log exception details alongside typed text (Rule 3).
             candidateSnippet = null
             candidateDueTimeMillis = 0L
+            candidateCategory = null
             keyboardView?.hideReminderChip()
         }
     }

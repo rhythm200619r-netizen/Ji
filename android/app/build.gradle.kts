@@ -92,4 +92,7 @@ dependencies {
   ksp(libs.androidx.room.compiler)
   implementation(libs.sqlcipher)
   implementation(libs.androidx.sqlite)
+
+  // TensorFlow Lite on-device inference (Phase 3)
+  implementation(libs.tensorflow.lite)
 }

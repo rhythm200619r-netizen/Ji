@@ -42,17 +42,22 @@ object CategoryClassifier {
             return Reminder.CATEGORY_PARCEL
         }
 
-        // 3. Check Professional
+        // 3. Check Personal (explicit family, health, home, leisure keywords take priority over generic words like 'call')
+        if (PERSONAL_KEYWORDS.any { lower.containsWord(it) }) {
+            return Reminder.CATEGORY_PERSONAL
+        }
+
+        // 4. Check Professional
         if (PROFESSIONAL_KEYWORDS.any { lower.containsWord(it) }) {
             return Reminder.CATEGORY_PROFESSIONAL
         }
 
-        // 4. Check Personal keywords or default to Personal
+        // 5. Default to Personal
         return Reminder.CATEGORY_PERSONAL
     }
 
     private fun String.containsWord(word: String): Boolean {
-        val regex = Regex("""(?i)(?:^|[\s,.\?!])${Regex.escape(word)}(?:$|[\s,.\?!])""")
+        val regex = Regex("""(?i)\b${Regex.escape(word)}\b""")
         return regex.containsMatchIn(this)
     }
 }
